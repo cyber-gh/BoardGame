@@ -2,8 +2,8 @@
 #include "Map.h"
 #include <stdlib.h>
 #include <iostream>
-#include <iostream>       // std::cout, std::endl
-#include <thread>         // std::this_thread::sleep_for
+#include <iostream>       
+#include <thread>         
 #include <chrono>
 #include <conio.h>
 

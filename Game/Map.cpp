@@ -84,6 +84,7 @@ Map::Map(int nrLines, int nrCols, int numberOfPlayersEach) {
 			 board[it->poz.first][it->poz.second] = -1;
 			 continue;
 		 }
+		 it->ability();
 		 for (int i = it->speed; i--;) {
 			 std::pair<int, int> nxt = it->nextPoz();
 			 if (isValidPosition(nxt)) {
@@ -91,8 +92,10 @@ Map::Map(int nrLines, int nrCols, int numberOfPlayersEach) {
 					 Player* other = res[board[nxt.first][nxt.second]];
 					 fight(*it, *other);
 					 if (it->isDead && other->isDead) {
+						 nrPlayers -= 2;
 						 board[it->poz.first][it->poz.second] = -1;
 						 board[other->poz.first][other->poz.second] = -1;
+						 std::cout << "Player " << it->identifier << " and Player " << other->identifier << " killed each other" << std::endl;
 						 break;
 					 }
 					 else if (it->isDead) {

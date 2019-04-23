@@ -7,7 +7,7 @@
 #include <chrono>
 #include <conio.h>
 
-const unsigned DEFAULT_WAIT_TIME = 1;
+const unsigned DEFAULT_WAIT_TIME = 4;
 
 class Engine
 {
@@ -20,6 +20,6 @@ public:
 
 	void play();
 
-	~Engine() {};
+	~Engine() { delete map; };
 };
 

@@ -36,7 +36,7 @@ public:
 		return true;
 	}
 	
-	virtual bool movePiece(std::pair<int, int> from, std::pair<int, int> to) {}
+	virtual bool movePiece(std::pair<int, int> from, std::pair<int, int> to) { return 1; }
 	virtual int getClosestPiece(std::pair<int, int> poz) const {
 		return 1;
 	}

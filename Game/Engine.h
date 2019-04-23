@@ -7,33 +7,18 @@
 #include <chrono>
 #include <conio.h>
 
-const unsigned DEFAULT_WAIT_TIME = 6;
+const unsigned DEFAULT_WAIT_TIME = 1;
 
 class Engine
 {
 	Map* map;
 
 public:
-	Engine() {
-		this->map = new Map(20,20,20);
+	Engine(int nrLines = 20, int nrCols = 20, int nrPlayersEach = 20) {
+		this->map = new Map(nrLines, nrCols, nrPlayersEach);
 	}
 
-	void play() {
-
-		std::cout << *map;
-		std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_WAIT_TIME));
-		while (1) {
-			system("CLS");
-			std::cout << *map;
-			map->executeRound();
-			std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_WAIT_TIME));
-			
-
-			if (_kbhit()) break;
-
-		}
-	}
-
+	void play();
 
 	~Engine() {};
 };

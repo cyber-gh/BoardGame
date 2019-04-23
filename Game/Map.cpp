@@ -1,5 +1,5 @@
 #include "Map.h"
-#include <iomanip>
+
 
 
 
@@ -38,60 +38,27 @@ inline void Map::initializeMatrix() {
 }
 
 inline void Map::generatePlayers(int numberOfPlayersOfEachType) {
-	int id = 0;
-	for (int steps = numberOfPlayersOfEachType; steps--;) {
+	int id = 0; //code duplication, might use templates
+	for (int steps = numberOfPlayersOfEachType; steps--; nrPlayers++) {
 		std::pair<int, int> playerPoz = randomValidPosition();
 		board[playerPoz.first][playerPoz.second] = id;
 		res.push_back(new AgressivePlayer(playerPoz, id++));
 	}
-	for (int steps = numberOfPlayersOfEachType; steps--;) {
+	for (int steps = numberOfPlayersOfEachType; steps--; nrPlayers++) {
 		std::pair<int, int> playerPoz = randomValidPosition();
 		board[playerPoz.first][playerPoz.second] = id;
 		res.push_back(new PassivePlayer(playerPoz, id++));
 	}
 
-	for (int steps = numberOfPlayersOfEachType; steps--;) {
+	for (int steps = numberOfPlayersOfEachType; steps--; nrPlayers++) {
 		std::pair<int, int> playerPoz = randomValidPosition();
 		board[playerPoz.first][playerPoz.second] = id;
 		res.push_back(new RandomPlayer(playerPoz, id++));
 	}
-	for (int steps = numberOfPlayersOfEachType; steps--;) {
+	for (int steps = numberOfPlayersOfEachType; steps--; nrPlayers++) {
 		std::pair<int, int> playerPoz = randomValidPosition();
 		board[playerPoz.first][playerPoz.second] = id;
 		res.push_back(new CasualPlayer(playerPoz, id++));
-	}
-}
-
-inline bool Map::movePiece(std::pair<int, int> from, std::pair<int, int> to) {
-	//TODO check collision
-	if (!isValidPosition(to)) return false;
-	if (board[to.first][to.second] != -1) return false;
-	board[to.first][to.second] = board[from.first][from.second];
-	board[from.first][from.second] = -1;
-	return true;
-}
-
-void Map::executeRound() {
-	for (auto it : res) {
-		if (it->isDead) continue;
-		for (int i = it->speed; i--;) {
-			std::pair<int, int> nxt = it->nextPoz();
-			if (movePiece(it->poz, nxt)) it->poz = nxt;
-			else if (isValidPosition(nxt) && board[nxt.first][nxt.second] != -1) {
-				Player& other = *res[board[nxt.first][nxt.second]];
-				fight(*it, other);
-				if (it->isDead) {
-					std::cout << "Player " << it->identifier << " dead" << std::endl;
-					board[it->poz.first][it->poz.second] = -1;
-				}
-				if (other.isDead) {
-					std::cout << "Player " << other.identifier << " dead" << std::endl;
-					board[other.poz.first][other.poz.second] = -1;
-				}
-			}
-		}
-		it->ability();
-
 	}
 }
 
@@ -101,6 +68,7 @@ Map::Map(int nrLines, int nrCols, int numberOfPlayersEach) {
 	this->nrLines = nrLines;
 	this->nrCols = nrCols;
 	initializeMatrix();
+	nrPlayers = 0;
 	generatePlayers(numberOfPlayersEach);
 }
 
@@ -108,3 +76,55 @@ Map::Map(int nrLines, int nrCols, int numberOfPlayersEach) {
 	for (int i = 0; i < nrLines; i++) delete board[i];
 	delete board;
 }
+
+ void Map::playRound() {
+	 std::setw(3);
+	 for (auto it : res) {
+		 if (it->isDead) {
+			 board[it->poz.first][it->poz.second] = -1;
+			 continue;
+		 }
+		 for (int i = it->speed; i--;) {
+			 std::pair<int, int> nxt = it->nextPoz();
+			 if (isValidPosition(nxt)) {
+				 if (board[nxt.first][nxt.second] != -1) {
+					 Player* other = res[board[nxt.first][nxt.second]];
+					 fight(*it, *other);
+					 if (it->isDead && other->isDead) {
+						 board[it->poz.first][it->poz.second] = -1;
+						 board[other->poz.first][other->poz.second] = -1;
+						 break;
+					 }
+					 else if (it->isDead) {
+						 nrPlayers--;
+						 board[it->poz.first][it->poz.second] = -1;
+						 std::cout << "Player " << it->identifier << " dead" << " -- killed by Player " <<
+							 other->identifier << std::endl;
+						 break;
+					 }
+					 else if (other->isDead) {
+						 nrPlayers--;
+						 board[it->poz.first][it->poz.second] = -1;
+						 board[nxt.first][nxt.second] = it->identifier;
+						 it->poz = nxt;
+						 std::cout << "Player " << other->identifier << " dead" <<
+							 " -- killed by Player " << it->identifier << std::endl;
+
+					 }
+				 }
+				 else {
+					 board[it->poz.first][it->poz.second] = -1;
+					 board[nxt.first][nxt.second] = it->identifier;
+					 it->poz = nxt;
+				 }
+			 }
+			 else {
+				 nrPlayers--;
+				 it->isDead = true;
+				 board[it->poz.first][it->poz.second] = -1;
+				 std::cout << "Player " << it->identifier << " suicide -- tried to leave the map" << std::endl;
+				 break;
+			 }
+		 }
+	 }
+ }
